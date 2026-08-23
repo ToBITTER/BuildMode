@@ -1,0 +1,57 @@
+/* Mobile-first corrections loaded after the main TRAQ theme. */
+html, body { overflow-x: hidden; }
+button, input, textarea { min-width: 0; }
+
+@media (max-width: 760px) {
+  body { text-align: left; }
+  .auth-panel { min-height: 100svh; align-items: start; padding: 32px 20px; }
+  .auth-card { margin: auto 0; }
+  .auth-card h2 { margin-top: 38px; font-size: 30px; line-height: 1.15; }
+  .auth-card > p, .auth-switch { text-align: left; }
+  .mobile-brand { justify-content: flex-start; }
+
+  .topbar { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; }
+  .topbar > div:nth-child(2) { min-width: 0; margin: 0; }
+  .topbar .eyebrow, .topbar h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .eyebrow { font-size: 9px; letter-spacing: .1em; }
+  .topbar h2 { font-size: 18px; }
+  .top-actions { justify-self: end; }
+  .top-actions .ghost { padding: 9px 10px; font-size: 11px; white-space: nowrap; }
+
+  .hero { align-items: flex-start; text-align: left; min-height: 0; padding: 30px 23px 32px; }
+  .hero > div:first-child { width: 100%; min-width: 0; }
+  .hero h1 { max-width: 100%; margin: 9px 0 14px; font-size: clamp(32px, 10.5vw, 43px); line-height: 1.04; overflow-wrap: anywhere; }
+  .hero p:last-child { max-width: 32rem; font-size: 14px; line-height: 1.55; }
+  .eyebrow { line-height: 1.4; }
+
+  .workspace-grid, .form-stack, .discipline-grid { min-width: 0; }
+  .panel, .action-panel { width: 100%; padding: 20px 17px; }
+  .panel-heading { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 11px; }
+  .panel-heading h3 { font-size: 18px; line-height: 1.25; overflow-wrap: anywhere; }
+  .panel-heading p { font-size: 12px; line-height: 1.45; }
+  .entry { padding: 18px 14px; }
+  label { line-height: 1.35; }
+  input, textarea { font-size: 16px; }
+
+  .format-card { grid-template-columns: 39px minmax(0, 1fr); }
+  .format-card button { grid-column: 1 / -1; width: 100%; min-height: 40px; }
+  .format-card strong, .format-card small { white-space: normal; overflow-wrap: anywhere; }
+  .privacy-note { line-height: 1.45; }
+
+  .habit { grid-template-columns: 24px minmax(0, 1fr) 28px; gap: 8px; }
+  .habit span { overflow-wrap: anywhere; line-height: 1.35; }
+  .score-row { align-items: flex-start; }
+  .tracker-list { grid-template-columns: 1fr; }
+  .danger-zone { flex-direction: column; }
+  .danger-zone button { width: 100%; }
+  .toast { left: 15px; right: 15px; bottom: 15px; text-align: center; }
+}
+
+@media (max-width: 390px) {
+  .page { padding-left: 12px; padding-right: 12px; }
+  .top-actions .ghost { font-size: 0; width: 38px; height: 38px; padding: 0; }
+  .top-actions .ghost::after { content: "?"; font-size: 16px; }
+  .hero { border-radius: 20px; padding: 27px 19px 29px; }
+  .hero h1 { font-size: 31px; }
+  .panel, .action-panel { border-radius: 16px; }
+}
