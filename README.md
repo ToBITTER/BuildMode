@@ -1,6 +1,6 @@
 # BuildMode — Career & Discipline Studio
 
-A local Streamlit web app with two tools:
+A deployable Flask web service with a custom vanilla HTML/CSS/JavaScript interface and two tools:
 
 - **CV Studio** creates a clean, consulting-style CV from repeatable form sections and exports both editable Word and ready-to-send PDF files.
 - **Discipline System** turns the supplied journal layouts into an interactive daily habit and reflection dashboard.
@@ -11,10 +11,10 @@ Python 3.10 or newer is recommended.
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+python app.py
 ```
 
-Streamlit opens the app in your browser, normally at `http://localhost:8501`.
+Open the app at `http://localhost:5000`.
 
 Local mode stores accounts and discipline data in `buildmode.db`. For a deployed multi-user service, set `DATABASE_URL` to PostgreSQL. See [DEPLOYMENT.md](DEPLOYMENT.md) for Render, Docker and Streamlit Community Cloud instructions.
 
@@ -36,4 +36,4 @@ with open("Ada_Okafor_CV.docx", "wb") as file:
 
 ## Notes
 
-BuildMode includes secure user accounts and database-backed habit history. CV form values and generated documents are intentionally kept in memory rather than stored. PostgreSQL is required for durable production deployment; the automatic SQLite fallback is intended only for local development.
+BuildMode includes secure user accounts and database-backed habit history. CV form values and generated documents are intentionally kept in memory rather than stored. Its interface is handcrafted with vanilla HTML, CSS and JavaScript, with Driver.js powering the integrated tour. PostgreSQL is required for durable production deployment; SQLite is only the local fallback.

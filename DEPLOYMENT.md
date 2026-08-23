@@ -6,7 +6,7 @@ BuildMode is designed for container platforms and uses PostgreSQL in production.
 
 1. Push the `BuildMode` folder to a Git repository.
 2. In Render, choose **New → Blueprint** and select the repository.
-3. Render reads `render.yaml`, installs `requirements.txt`, starts Streamlit on Render's assigned port, creates the PostgreSQL database, and injects `DATABASE_URL`.
+3. Render reads `render.yaml`, installs `requirements.txt`, starts Flask with Gunicorn, creates PostgreSQL, and injects `DATABASE_URL` and a generated `SECRET_KEY`.
 4. After deployment, open `/_stcore/health` on the service URL to confirm the health check returns `ok`.
 
 The included starter service and database plans are intentionally non-free because persistent applications should not sleep or discard user data. Adjust the plan names in `render.yaml` to match the plans available in your Render account.
@@ -14,10 +14,10 @@ The included starter service and database plans are intentionally non-free becau
 If you created a Web Service manually instead of using the Blueprint, set these values in **Settings**:
 
 - Build Command: `pip install -r requirements.txt`
-- Start Command: `streamlit run app.py --server.address=0.0.0.0 --server.port=$PORT --server.headless=true`
-- Health Check Path: `/_stcore/health`
+- Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120`
+- Health Check Path: `/health`
 
-Do not use Render's placeholder `gunicorn your_application.wsgi` command; BuildMode is a Streamlit application, not a WSGI application.
+The Gunicorn target must be exactly `app:app`; `your_application.wsgi` is only a placeholder.
 
 ## Docker or another host
 
