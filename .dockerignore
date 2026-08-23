@@ -7,5 +7,3 @@ __pycache__
 .streamlit/secrets.toml
 GBENLE_PRAISE_CV.docx
 sample_cv.*
-test_*.py
-render_sample.py
