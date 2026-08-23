@@ -1,4 +1,4 @@
-"""Authentication and persistent user data for BuildMode."""
+"""Authentication and persistent user data for TRAQ."""
 
 from __future__ import annotations
 

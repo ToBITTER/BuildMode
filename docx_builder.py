@@ -1,4 +1,4 @@
-"""BuildMode Word CV generator, intentionally independent from Streamlit."""
+"""TRAQ Word CV generator, independent from the web interface."""
 
 from __future__ import annotations
 

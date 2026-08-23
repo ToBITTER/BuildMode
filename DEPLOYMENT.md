@@ -1,10 +1,10 @@
-# Deploying BuildMode
+# Deploying TRAQ
 
-BuildMode is designed for container platforms and uses PostgreSQL in production. SQLite is only the local-development fallback.
+TRAQ is designed for container platforms and uses PostgreSQL in production. SQLite is only the local-development fallback.
 
 ## Render Blueprint
 
-1. Push the `BuildMode` folder to a Git repository.
+1. Push the TRAQ project folder to a Git repository.
 2. In Render, choose **New → Blueprint** and select the repository.
 3. Render reads `render.yaml`, installs `requirements.txt`, starts Flask with Gunicorn, creates PostgreSQL, and injects `DATABASE_URL` and a generated `SECRET_KEY`.
 4. After deployment, open `/_stcore/health` on the service URL to confirm the health check returns `ok`.

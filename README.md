@@ -1,4 +1,4 @@
-# BuildMode — Career & Discipline Studio
+# TRAQ — Career & Discipline Studio
 
 A deployable Flask web service with a custom vanilla HTML/CSS/JavaScript interface and two tools:
 
@@ -22,7 +22,7 @@ Local mode stores accounts and discipline data in `buildmode.db`. For a deployed
 
 Fill in only the sections you need and select **Generate CV**. Empty sections are omitted from the Word document. The generated `.docx` remains editable in Microsoft Word, LibreOffice, or Google Docs.
 
-The PDF is generated directly by BuildMode, so LibreOffice is not required. New users receive a four-step walkthrough on first launch and can reopen it at any time from the sidebar.
+The PDF is generated directly by TRAQ, so LibreOffice is not required. New users receive an integrated walkthrough on first launch and can reopen it at any time from the sidebar.
 
 The document-building code is isolated in `docx_builder.py` and `pdf_builder.py`, so it can be tested without Streamlit:
 
@@ -36,4 +36,4 @@ with open("Ada_Okafor_CV.docx", "wb") as file:
 
 ## Notes
 
-BuildMode includes secure user accounts and database-backed habit history. CV form values and generated documents are intentionally kept in memory rather than stored. Its interface is handcrafted with vanilla HTML, CSS and JavaScript, with Driver.js powering the integrated tour. PostgreSQL is required for durable production deployment; SQLite is only the local fallback.
+TRAQ includes secure user accounts and database-backed habit history. CV form values and generated documents are intentionally kept in memory rather than stored. Its interface is handcrafted with vanilla HTML, CSS and JavaScript, with Driver.js powering the integrated tour. PostgreSQL is required for durable production deployment; SQLite is only the local fallback.

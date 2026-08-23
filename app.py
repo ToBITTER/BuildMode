@@ -1,4 +1,4 @@
-"""BuildMode Flask API and web entry point."""
+"""TRAQ Flask API and web entry point."""
 from __future__ import annotations
 
 import os
