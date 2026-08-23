@@ -1,0 +1,11 @@
+.venv/
+.deps/
+__pycache__/
+*.py[cod]
+*.db
+.streamlit/secrets.toml
+.env
+GBENLE_PRAISE_CV.docx
+sample_cv.docx
+sample_cv.pdf
+

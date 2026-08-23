@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: buildmode
+    runtime: docker
+    plan: starter
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: buildmode-db
+          property: connectionString
+
+databases:
+  - name: buildmode-db
+    plan: basic-256mb
+    databaseName: buildmode
+    user: buildmode
+
