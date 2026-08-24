@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import re
+import logging
 from io import BytesIO
 from typing import Any
 
@@ -122,10 +123,18 @@ def _download(kind: str) -> Any:
     data = _cv_data()
     if data is None: return jsonify({"error": "Sign in or shorten the CV content."}), 400
     name = re.sub(r"[^A-Za-z0-9_-]+", "_", str(data.get("full_name", "")).strip()) or "My"
-    if kind == "docx":
-        return send_file(BytesIO(build_docx(data).getvalue()), as_attachment=True, download_name=f"{name}_CV.docx",
-                         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-    return send_file(BytesIO(build_pdf(data).getvalue()), as_attachment=True, download_name=f"{name}_CV.pdf", mimetype="application/pdf")
+    try:
+        if kind == "docx":
+            output = build_docx(data)
+            return send_file(output, as_attachment=True, download_name=f"{name}_CV.docx",
+                             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                             max_age=0)
+        output = build_pdf(data)
+        return send_file(output, as_attachment=True, download_name=f"{name}_CV.pdf",
+                         mimetype="application/pdf", max_age=0)
+    except Exception:
+        logging.exception("TRAQ %s export failed", kind)
+        return jsonify({"error": f"The {kind.upper()} could not be generated. Please shorten unusually long entries and try again."}), 500
 
 
 @app.post("/api/cv/docx")
