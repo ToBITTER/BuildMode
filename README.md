@@ -16,7 +16,7 @@ python app.py
 
 Open the app at `http://localhost:5000`.
 
-Local mode stores accounts and discipline data in `buildmode.db`. For a deployed multi-user service, set `DATABASE_URL` to PostgreSQL. See [DEPLOYMENT.md](DEPLOYMENT.md) for Render, Docker and Streamlit Community Cloud instructions.
+Local mode stores accounts and discipline data in `traq.db`. A Render deployment refuses to start without `DATABASE_URL`, preventing user accounts from being silently stored on Render's disposable filesystem. See [DEPLOYMENT.md](DEPLOYMENT.md) for PostgreSQL setup.
 
 ## CV generation
 

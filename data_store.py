@@ -14,7 +14,13 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, create_engin
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///buildmode.db")
+_configured_database_url = os.getenv("DATABASE_URL")
+if os.getenv("RENDER") and not _configured_database_url:
+    raise RuntimeError(
+        "TRAQ requires DATABASE_URL on Render. Connect a persistent Render PostgreSQL database "
+        "instead of using the disposable local filesystem."
+    )
+DATABASE_URL = _configured_database_url or "sqlite:///traq.db"
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
 elif DATABASE_URL.startswith("postgresql://"):

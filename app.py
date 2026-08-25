@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import re
 import logging
+from datetime import timedelta
 from io import BytesIO
 from typing import Any
 
@@ -19,7 +20,8 @@ from pdf_builder import build_pdf
 app = Flask(__name__)
 app.config.update(SECRET_KEY=os.getenv("SECRET_KEY", "local-development-only-change-me"),
                   SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
-                  SESSION_COOKIE_SECURE=bool(os.getenv("RENDER")), MAX_CONTENT_LENGTH=256 * 1024)
+                  SESSION_COOKIE_SECURE=bool(os.getenv("RENDER")), SESSION_COOKIE_NAME="traq_session",
+                  PERMANENT_SESSION_LIFETIME=timedelta(days=14), MAX_CONTENT_LENGTH=256 * 1024)
 limiter = Limiter(get_remote_address, app=app, default_limits=["300 per hour"], storage_uri="memory://")
 initialise_database()
 STARTER_HABITS = ["Wake up early", "Workout", "Read 20 pages", "No phone first hour", "Meditate", "Journal"]
@@ -36,6 +38,11 @@ def _json() -> dict[str, Any]:
 
 def _unauthorised() -> tuple[Any, int]:
     return jsonify({"error": "Sign in to continue."}), 401
+
+
+@app.errorhandler(429)
+def rate_limited(_error: Any) -> tuple[Any, int]:
+    return jsonify({"error": "Too many attempts. Wait one minute and try again."}), 429
 
 
 @app.get("/")
@@ -61,6 +68,8 @@ def signup() -> Any:
     user_id, message = create_user(str(data.get("email", "")), str(data.get("display_name", "")), str(data.get("password", "")))
     if not user_id:
         return jsonify({"error": message}), 400
+    session.clear()
+    session.permanent = True
     session.update(user_id=user_id, email=str(data.get("email", "")).strip().lower(), display_name=str(data.get("display_name", "")).strip())
     return jsonify({"message": message, "user": {"id": user_id, "email": session["email"], "display_name": session["display_name"]}}), 201
 
@@ -73,6 +82,7 @@ def login() -> Any:
     if not user:
         return jsonify({"error": "Email or password is incorrect."}), 401
     session.clear()
+    session.permanent = True
     session.update(user_id=user["id"], email=user["email"], display_name=user["display_name"])
     return jsonify({"user": user})
 
