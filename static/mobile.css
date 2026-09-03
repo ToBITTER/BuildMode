@@ -45,6 +45,14 @@ button, input, textarea { min-width: 0; }
   .danger-zone { flex-direction: column; }
   .danger-zone button { width: 100%; }
   .toast { left: 15px; right: 15px; bottom: 15px; text-align: center; }
+  .admin-heading { align-items: flex-start; flex-direction: column; }
+  .admin-heading h1 { font-size: 30px; }
+  .admin-stats { grid-template-columns: 1fr; }
+  .admin-toolbar { flex-direction: column; }
+  .admin-toolbar > input { max-width: none; }
+  .admin-table-wrap table { min-width: 720px; }
+  .admin-feed > div { align-items: flex-start; flex-wrap: wrap; }
+  .admin-feed time { padding-left: 46px; }
 }
 
 @media (max-width: 390px) {

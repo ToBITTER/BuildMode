@@ -13,7 +13,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from data_store import (authenticate, create_user, delete_account, initialise_database, load_day,
-                        load_habits, save_day, save_habits)
+                        load_habits, load_platform_activity, save_day, save_habits)
 from docx_builder import build_docx
 from pdf_builder import build_pdf
 
@@ -25,6 +25,9 @@ app.config.update(SECRET_KEY=os.getenv("SECRET_KEY", "local-development-only-cha
 limiter = Limiter(get_remote_address, app=app, default_limits=["300 per hour"], storage_uri="memory://")
 initialise_database()
 STARTER_HABITS = ["Wake up early", "Workout", "Read 20 pages", "No phone first hour", "Meditate", "Journal"]
+PLATFORM_ADMIN_EMAILS = {"tobiloba.gbenle@gmail.com", *{
+    email.strip().lower() for email in os.getenv("PLATFORM_ADMIN_EMAILS", "").split(",") if email.strip()
+}}
 
 
 def _uid() -> int | None:
@@ -38,6 +41,10 @@ def _json() -> dict[str, Any]:
 
 def _unauthorised() -> tuple[Any, int]:
     return jsonify({"error": "Sign in to continue."}), 401
+
+
+def _is_platform_admin() -> bool:
+    return bool(_uid()) and str(session.get("email", "")).strip().lower() in PLATFORM_ADMIN_EMAILS
 
 
 @app.errorhandler(429)
@@ -91,6 +98,15 @@ def login() -> Any:
 def logout() -> Any:
     session.clear()
     return jsonify({"message": "Signed out."})
+
+
+@app.get("/api/platform/users")
+def platform_users() -> Any:
+    if not _uid():
+        return _unauthorised()
+    if not _is_platform_admin():
+        return jsonify({"error": "Platform administrator access is required."}), 403
+    return jsonify(load_platform_activity())
 
 
 @app.get("/api/habits")

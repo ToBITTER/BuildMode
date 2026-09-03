@@ -10,7 +10,7 @@ import secrets
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, create_engine, delete, select
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, create_engine, delete, inspect, select, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 
@@ -42,6 +42,7 @@ class User(Base):
     display_name: Mapped[str] = mapped_column(String(100))
     password_hash: Mapped[str] = mapped_column(String(256))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     profile: Mapped["UserProfile"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
     days: Mapped[list["DailyRecord"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
@@ -67,6 +68,10 @@ class DailyRecord(Base):
 
 def initialise_database() -> None:
     Base.metadata.create_all(engine)
+    # create_all does not add columns to databases created by older releases.
+    if "last_login_at" not in {column["name"] for column in inspect(engine).get_columns("users")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE users ADD COLUMN last_login_at TIMESTAMP"))
 
 
 def _password_hash(password: str, salt: bytes | None = None) -> str:
@@ -97,7 +102,8 @@ def create_user(email: str, display_name: str, password: str) -> tuple[int | Non
     with Session.begin() as session:
         if session.scalar(select(User).where(User.email == normalised)):
             return None, "An account with this email already exists."
-        user = User(email=normalised, display_name=display_name.strip(), password_hash=_password_hash(password))
+        user = User(email=normalised, display_name=display_name.strip(), password_hash=_password_hash(password),
+                    last_login_at=datetime.now(timezone.utc))
         user.profile = UserProfile(habits_json="[]")
         session.add(user)
         session.flush()
@@ -105,11 +111,50 @@ def create_user(email: str, display_name: str, password: str) -> tuple[int | Non
 
 
 def authenticate(email: str, password: str) -> dict[str, Any] | None:
-    with Session() as session:
+    with Session.begin() as session:
         user = session.scalar(select(User).where(User.email == email.strip().lower()))
         if not user or not _password_matches(password, user.password_hash):
             return None
+        user.last_login_at = datetime.now(timezone.utc)
         return {"id": user.id, "email": user.email, "display_name": user.display_name}
+
+
+def load_platform_activity() -> dict[str, list[dict[str, Any]]]:
+    """Return account and check-in metadata without exposing private journal text."""
+    with Session() as session:
+        users = list(session.scalars(select(User).order_by(User.created_at.desc())))
+        records = list(session.scalars(select(DailyRecord).order_by(DailyRecord.updated_at.desc()).limit(200)))
+        latest_by_user: dict[int, datetime] = {}
+        user_names = {user.id: user.display_name for user in users}
+        activity = []
+        for record in records:
+            latest_by_user.setdefault(record.user_id, record.updated_at)
+            try:
+                checks = json.loads(record.checks_json)
+            except json.JSONDecodeError:
+                checks = {}
+            values = list(checks.values()) if isinstance(checks, dict) else []
+            completed = sum(bool(value) for value in values)
+            activity.append({
+                "id": record.id,
+                "user_id": record.user_id,
+                "user_name": user_names.get(record.user_id, "Deleted user"),
+                "day": record.day,
+                "completed": completed,
+                "total": len(values),
+                "updated_at": record.updated_at.isoformat(),
+            })
+        return {
+            "users": [{
+                "id": user.id,
+                "display_name": user.display_name,
+                "email": user.email,
+                "created_at": user.created_at.isoformat(),
+                "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+                "last_activity_at": latest_by_user[user.id].isoformat() if user.id in latest_by_user else None,
+            } for user in users],
+            "activities": activity,
+        }
 
 
 def load_habits(user_id: int, defaults: list[str]) -> list[str]:
